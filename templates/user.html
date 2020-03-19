@@ -1,4 +1,15 @@
 {% extends 'base.html' %} {% block content %}
-
-<h1>You Made It!</h1>
+<div class="card" style="width: 25rem;">
+  <div class="card-body">
+    <h3 class="card-title">
+      Welcome <b class="text-primary">{{ user.username}}</b>
+    </h3>
+    <h4 class="card-subtitle mb-2 text-muted">{{ user.email }}</h4>
+    <p class="card-text">
+      {{ user.first_name }} {{ user.last_name }}
+    </p>
+    <a href="#" class="card-link">Card link</a>
+    <a href="#" class="card-link">Another link</a>
+  </div>
+</div>
 {% endblock %}

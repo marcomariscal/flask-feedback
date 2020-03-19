@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User
+from models import db, connect_db, User, Feedback
 from forms import RegisterForm, LoginForm
 from sqlalchemy.exc import IntegrityError
 
@@ -39,12 +39,12 @@ def handle_register_form():
         try:
             user = User.register(username, password, email,
                                  first_name, last_name)
+            db.session.add(user)
+            db.session.commit()
 
         except IntegrityError:
             flash('Username already taken')
-
-        db.session.add(user)
-        db.session.commit()
+            return redirect('/')
 
         session['user'] = user.username
 
@@ -70,7 +70,7 @@ def handle_login():
             session["user"] = user.username
             return redirect(f'/users/{session["user"]}')
         else:
-            form.username.errors(['Invalid username or password'])
+            form.username.errors = ['Invalid username or password']
 
     return render_template('login.html', form=form)
 
@@ -78,7 +78,11 @@ def handle_login():
 @app.route('/users/<string:username>', methods=['GET'])
 def show_user(username):
 
-    user = User.filter(username=username)
+    if session['user'] != username:
+        flash('Please log in first!')
+        return redirect('/login')
+
+    user = User.query.get(username)
 
     return render_template('user.html', user=user)
 

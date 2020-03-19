@@ -1,6 +1,5 @@
 {% extends 'base.html' %} {% block content %}
 <div class="container mt-3">
-  <h4>Please Log In</h4>
   <form action="/login" method="POST">
     {{ form.hidden_tag() }}
     <!--add type=hidden form fields -->
@@ -11,7 +10,7 @@
       field.errors %} {{ error }} {% endfor %}
     </div>
     {% endfor %}
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Login</button>
   </form>
 </div>
 
