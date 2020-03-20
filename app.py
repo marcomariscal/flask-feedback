@@ -108,6 +108,8 @@ def delete_user(username):
     db.session.delete(user)
     db.session.commit()
 
+    session.pop("user")
+
     return redirect('/')
 
 
