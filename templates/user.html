@@ -8,8 +8,26 @@
     <p class="card-text">
       {{ user.first_name }} {{ user.last_name }}
     </p>
-    <a href="#" class="card-link">Card link</a>
-    <a href="#" class="card-link">Another link</a>
+    <a href="/users/{{ user.username }}/feedback/add" class="card-link"
+      >Add feedback</a
+    >
+    <a href="/users/{{ user.username }}/delete" class="card-link text-danger"
+      >Delete User</a
+    >
   </div>
 </div>
-{% endblock %}
+
+{% for feed in user.feedback %}
+<div class="card my-4" style="width: 25rem;">
+  <div class="card-body">
+    <h5 class="card-title">
+      {{ feed.title }}
+    </h5>
+    <p class="card-subtitle mb-2 text-muted">{{ feed.content }}</p>
+    <a href="/feedback/{{ feed.id }}/update" class="card-link">Edit</a>
+    <a href="/feedback/{{ feed.id }}/delete" class="card-link text-danger"
+      >Delete</a
+    >
+  </div>
+</div>
+{% endfor %} {% endblock %}

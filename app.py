@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Feedback
-from forms import RegisterForm, LoginForm
+from forms import RegisterForm, LoginForm, FeedbackForm
 from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
@@ -93,3 +93,88 @@ def handle_logout():
     session.pop("user")
 
     return redirect('/')
+
+
+@app.route('/users/<string:username>/delete')
+def delete_user(username):
+
+    if session["user"] != username:
+        flash("You don't have permission to do that!")
+        return redirect('/login')
+
+    session.pop("user")
+
+    user = User.query.get_or_404(username)
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect('/')
+
+
+@app.route('/users/<string:username>/feedback/add', methods=['GET', 'POST'])
+def add_feedback(username):
+
+    if session["user"] != username:
+        flash("You don't have permission to do that!")
+        return redirect('/login')
+
+    user = User.query.get_or_404(username)
+
+    form = FeedbackForm()
+
+    if form.validate_on_submit():
+
+        title = form.title.data
+        content = form.content.data
+
+        feedback = Feedback(title=title, content=content, username=username)
+        db.session.add(feedback)
+        db.session.commit()
+
+        return redirect(f'/users/{username}')
+
+    else:
+
+        return render_template('feedback_add.html', form=form, user=user)
+
+
+@app.route('/feedback/<int:feedback_id>/update', methods=['GET', 'POST'])
+def update_feedback(feedback_id):
+
+    feedback = Feedback.query.get_or_404(feedback_id)
+    username = feedback.username
+
+    if session["user"] != username:
+        flash("You don't have permission to do that!")
+        return redirect('/login')
+
+    form = FeedbackForm(obj=feedback)
+
+    if form.validate_on_submit():
+
+        feedback.title = form.title.data
+        feedback.content = form.content.data
+
+        db.session.commit()
+
+        return redirect(f'/users/{username}')
+
+    else:
+
+        return render_template('feedback_update.html', form=form, feedback=feedback)
+
+
+@app.route('/feedback/<int:feedback_id>/delete')
+def delete_feedback(feedback_id):
+
+    feedback = Feedback.query.get_or_404(feedback_id)
+    username = feedback.username
+
+    if session["user"] != username:
+        flash("You don't have permission to do that!")
+        return redirect('/login')
+
+    db.session.delete(feedback)
+    db.session.commit()
+
+    return redirect(f'/users/{username}')
